@@ -1,5 +1,7 @@
 # import fire
 import click
+import fire
+import sys
 import json
 import os
 from pywebostv.connection import WebOSClient
@@ -13,6 +15,21 @@ from pywebostv.controls import (
 #     ) for item in sl)) +
 #     list(InputControl.INPUT_COMMANDS.keys())
 # ))
+
+class Cli(object):
+    def __init__(self, configFile="~/.lgtv"):
+        if os.path.exists(os.path.expanduser(configFile)):
+            with open(os.path.expanduser(configFile), 'r') as fp:
+                self.config = json.load(fp)
+
+            if len(sys.argv) > 1:
+                self.client = WebOSClient(self.config['host'])
+                self.client.connect()
+                assert(2 in self.client.register(self.config)), "Not registered to TV yet"        
+
+
+if __name__ == "__main__":
+    fire.Fire(Cli)
 
 @click.group()
 @click.option('-c', '--configFile', default='~/.lgtv')
@@ -90,7 +107,7 @@ def bind_function(name, c):
         elif c in TvControl.COMMANDS.keys():
             res = getattr(TvControl(client), c)(payload)
             click.echo(json.dumps(res, indent=4))
-            
+
         elif c in SourceControl.COMMANDS.keys():
             res = getattr(SourceControl(client), c)(payload)
             click.echo(res)
@@ -105,46 +122,59 @@ def bind_function(name, c):
 @main.command()
 def key(): pass
 
+
 @main.command()
+@click.pass_context
 @click.argument('cmd', type=click.Choice(['list', 'set']))
-def src(cmd): print(cmd)
+@click.argument('source', default=None)
+def src(ctx, cmd, source):
+    getattr(SourceControl(ctx.obj.get('client')), f'{cmd}_source')(source)
+
 
 @main.command()
 @click.argument('cmd', type=click.Choice(['info', 'notify', 'on', 'off']))
 def sys(cmd):
     pass
 
+
 @main.command()
 @click.argument('cmd', type=click.Choice(['up', 'down', '+', '-']))
 def tv(cmd):
     pass
 
+
 @main.command()
 @click.argument('cmd', type=click.Choice(['up', 'down', '+', '-', 'get', 'set']))
 def vol(cmd, value=None): pass
+
 
 @main.command()
 @click.argument('state', type=click.Choice(['true', 'false', 'on', 'off', '1', '0']), default='true')
 def mute(state):
     print(state)
 
+
 @main.command()
 def play(): pass
+
 
 @main.command()
 def pause(): pass
 
+
 @main.command()
 def stop(): pass
 
+
 @main.command()
 def rew(): pass
+
 
 @main.command()
 def ff(): pass
 
 
-if __name__ == "__main__":
-    import sys
-    sys.argv.append('list_sources')
-    main()
+# if __name__ == "__main__":
+#     import sys
+#     sys.argv.append('list_sources')
+#     main()
