@@ -1,4 +1,5 @@
-import fire
+# import fire
+import click
 import json
 import os
 from pywebostv.connection import WebOSClient
@@ -24,58 +25,92 @@ class LG(object):
             print('Got to register first')
             self.config = {}
 
-    def register(self, host, configFile='~/.lgtv'):
-        """ Start with this to get the pairing ok (key, host, mac) """
 
-        # client = WebOSClient.discover()
-        try:
-            client = WebOSClient(host)
-            client.connect()
-            for status in client.register(self.config):
-                if status == WebOSClient.PROMPTED:
-                    print("Please accept the connect on the TV!")
-                elif status == WebOSClient.REGISTERED:
-                    print("Registration successful!")
+@click.group()
+@click.option('-c', '--configFile', default='~/.lgtv')
+@click.pass_context
+def main(ctx, configfile):
+    ctx.ensure_object(dict)
 
-                    self.config['host'] = host
-                    self.config['mac'] = SystemControl(self.client).info().get('device_id', '')
-                    with open(os.path.expanduser(configFile), 'w+') as fp:
-                        json.dump(self.config, fp)
-                    print(json.dumps(self.config, indent=4))
+    if os.path.exists(os.path.expanduser(configfile)):
+        with open(os.path.expanduser(configfile), 'r') as fp:
+            config = json.load(fp)
 
-        except Exception as e:
-            print(f"Something went wrong: {e}")
+        client = WebOSClient(config['host'])
+        client.connect()
+        assert(2 in client.register(config)), "Not registered to TV yet"
+        ctx.obj['client'] = client
 
-    def mute(self):
-        """ No more sound"""
+    else:
+        click.echo('Got to register first')
+        config = {}
 
-        MediaControl(self.client).mute(True)
-
-    def unmute(self):
-        """ The sound is back"""
-
-        MediaControl(self.client).mute(False)
-
-    def info(self):
-        """ Get Software info """
-
-        print(json.dumps(SystemControl(self.client).info(), indent=2))
-
-    def notify(self, message):
-        """ Toast on the screen """
-
-        SystemControl(self.client).notify(message)
-
-    def up(self):
-        """ Send up """
-
-        a = ApplicationControl(self.client)
-        a.list_apps()
+    ctx.obj['config'] = config
+    ctx.obj['configfile'] = configfile
 
 
-def main():
-    fire.Fire(LG)
+@main.command()
+@click.argument('host')
+@click.pass_context
+def register(ctx, host):
+    """ Start with this to get the pairing ok (key, host, mac) """
 
+    config = ctx.obj.get('config')
+
+    # client = WebOSClient.discover()
+    try:
+        client = WebOSClient(host)
+        client.connect()
+        for status in client.register(self.config):
+            if status == WebOSClient.PROMPTED:
+                print("Please accept the connect on the TV!")
+            elif status == WebOSClient.REGISTERED:
+                print("Registration successful!")
+
+                self.config['host'] = host
+                self.config['mac'] = SystemControl(
+                    self.client).info().get('device_id', '')
+                with open(os.path.expanduser(configFile), 'w+') as fp:
+                    json.dump(self.config, fp)
+                print(json.dumps(self.config, indent=4))
+
+    except Exception as e:
+        print(f"Something went wrong: {e}")
+
+
+commands = set(sorted(
+    list((item for sl in(getattr(x, 'COMMANDS') for x in (
+        ApplicationControl, MediaControl, InputControl, SourceControl, SystemControl, TvControl)
+    ) for item in sl)) +
+    list(InputControl.INPUT_COMMANDS.keys())
+))
+
+
+def bind_function(name, c):
+    def func(ctx):
+        client = ctx.obj.get('client')
+
+        if c in ApplicationControl.COMMANDS.keys():
+            res = getattr(ApplicationControl(client), c)()
+            print(res)
+        elif c in MediaControl.COMMANDS.keys():
+            res = getattr(MediaControl(client), c)()
+            click.echo(json.dumps(res, indent=4))
+        elif c in SystemControl.COMMANDS.keys():
+            res = getattr(SystemControl(client), c)()
+            click.echo(json.dumps(res, indent=4))
+        else:
+            print('boh')
+
+        # if found create client here
+
+    func.__name__ = name
+    return func
+
+
+for c in commands:
+    f = click.pass_context(bind_function('_f', c))
+    main.command(name=c)(f)
 
 if __name__ == "__main__":
     import sys
