@@ -7,13 +7,12 @@ from pywebostv.controls import (
     ApplicationControl, MediaControl, InputControl, SourceControl, SystemControl, TvControl)
 
 
-commands = set(sorted(
-    list((item for sl in(getattr(x, 'COMMANDS') for x in (
-        ApplicationControl, MediaControl, InputControl, SourceControl, SystemControl, TvControl)
-    ) for item in sl)) +
-    list(InputControl.INPUT_COMMANDS.keys())
-))
-
+# commands = set(sorted(
+#     list((item for sl in(getattr(x, 'COMMANDS') for x in (
+#         ApplicationControl, MediaControl, InputControl, SourceControl, SystemControl, TvControl)
+#     ) for item in sl)) +
+#     list(InputControl.INPUT_COMMANDS.keys())
+# ))
 
 @click.group()
 @click.option('-c', '--configFile', default='~/.lgtv')
@@ -103,11 +102,46 @@ def bind_function(name, c):
     return func
 
 
-for c in commands:
-    f = click.pass_context(bind_function('_f', c))
-    _f=main.command(name=c)(f)
-    click.argument('payload')(_f) 
+@main.command()
+def key(): pass
 
+@main.command()
+@click.argument('cmd', type=click.Choice(['list', 'set']))
+def src(cmd): print(cmd)
+
+@main.command()
+@click.argument('cmd', type=click.Choice(['info', 'notify', 'on', 'off']))
+def sys(cmd):
+    pass
+
+@main.command()
+@click.argument('cmd', type=click.Choice(['up', 'down', '+', '-']))
+def tv(cmd):
+    pass
+
+@main.command()
+@click.argument('cmd', type=click.Choice(['up', 'down', '+', '-', 'get', 'set']))
+def vol(cmd, value=None): pass
+
+@main.command()
+@click.argument('state', type=click.Choice(['true', 'false', 'on', 'off', '1', '0']), default='true')
+def mute(state):
+    print(state)
+
+@main.command()
+def play(): pass
+
+@main.command()
+def pause(): pass
+
+@main.command()
+def stop(): pass
+
+@main.command()
+def rew(): pass
+
+@main.command()
+def ff(): pass
 
 
 if __name__ == "__main__":
