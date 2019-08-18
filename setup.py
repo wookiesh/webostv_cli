@@ -12,7 +12,7 @@ setup(name='webostv-cli',
       packages=find_packages(),
       python_requires='>=3.4.*',
       install_requires=[
-          'fire>=0.2.1',
+          'click>=7.0',
           'pywebostv>=0.8.4'
       ],
       entry_points={
