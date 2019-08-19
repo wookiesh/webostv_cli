@@ -12,6 +12,7 @@ pywebostv = "*"
 click = "*"
 keyboard = "*"
 pynput = "*"
+wakeonlan = "*"
 
 [requires]
 python_version = "3.7"

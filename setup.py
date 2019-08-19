@@ -14,7 +14,8 @@ setup(name='webostv-cli',
       install_requires=[
           'click>=7.0',
           'pywebostv>=0.8.4',
-          'pynput>=1.4.2'
+          'pynput>=1.4.2',
+          'wakeonlan>=1.1.6'
       ],
       entry_points={
           'console_scripts': [
