@@ -10,6 +10,8 @@ autopep8 = "*"
 fire = "*"
 pywebostv = "*"
 click = "*"
+keyboard = "*"
+pynput = "*"
 
 [requires]
 python_version = "3.7"

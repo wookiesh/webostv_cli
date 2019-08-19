@@ -3,7 +3,7 @@
 from setuptools import setup, find_packages
 
 setup(name='webostv-cli',
-      version='0.1',
+      version='0.1dev',
       description='Get control over that evil box',
       long_description=open('README.md').read(),   
       author='Joseph Piron',
@@ -13,7 +13,8 @@ setup(name='webostv-cli',
       python_requires='>=3.4.*',
       install_requires=[
           'click>=7.0',
-          'pywebostv>=0.8.4'
+          'pywebostv>=0.8.4',
+          'pynput>=1.4.2'
       ],
       entry_points={
           'console_scripts': [
