@@ -9,3 +9,9 @@ This tool leverages the excellent [PyWebOSTV](https://github.com/supersaiyanmode
 ## Installation
 
 ## Usage
+
+To start a listener for key/mouse input, use the command
+`lg listen`
+and then all key presses are forwarded to the tv, with the following effect:
+
+table_map

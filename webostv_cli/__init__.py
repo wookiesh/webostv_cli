@@ -116,7 +116,7 @@ class Cli(object):
             getattr(s.ic, key)()
             s.ic.disconnect_input()
 
-    def keys(self):
+    def listen(self):
         " Listen and send keys and mouse event until CTRL LEFT is pressed "
         print('Press on CTRL LEFT to stop listening')
         s = S()
@@ -176,5 +176,5 @@ def main():
 
 
 if __name__ == "__main__":
-    sys.argv.append('mute')
+    sys.argv.append('keys')
     main()
