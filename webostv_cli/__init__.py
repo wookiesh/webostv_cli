@@ -42,7 +42,29 @@ class Cli(object):
 
     def register(self):
         """ Request pairing with the TV """
-        raise
+        for status in S().ws.register(S.config):
+            print (S.config)
+            if status == WebOSClient.PROMPTED:
+                print("Please accept the connect on the TV!")
+            elif status == WebOSClient.REGISTERED:
+                print("Registration successful!")
+
+# TODO: automatically fill config file with discoverd ip and macs, and register them maybe ?
+
+    def discover(self):
+        """ Discover existing smart TV on the LAN and create config file """
+        try: 
+            while True:
+                print(".", end="")
+                a=WebOSClient.discover()            
+                if a:
+                    for res in a:
+                        print(f"\n{res.host} found")
+                    break
+        except KeyboardInterrupt:
+            print("\nLong enough..")
+        
+        
 
     def on(self, broadcast='192.168.1.255'):
         """ Wake on lan """
@@ -81,18 +103,20 @@ class Cli(object):
         else:
             print("Wrong command !")
 
-    def vol(self, cmd, value=None):
-        """ get, set, up or down """
-        if cmd == 'get':
+    def vol(self, value=None):
+        """ no value: => display tv level, int => set value, +/- or up/down => increase/decrease """
+        if value == None:
             print(json.dumps(S().mc.get_volume(), indent=4))
-        elif cmd == 'set':
-            S().mc.set_volume(value)
-        elif cmd == 'up':
+        elif value in ('+', 'up'):
             S().mc.volume_up()
-        elif cmd == 'down':
+        elif value in ('-', 'down'):
             S().mc.volume_down()
         else:
-            print("Wrong command !")
+            try: 
+                int(value)
+                S().mc.set_volume(value)
+            except:
+                print("Wrong value !")
 
     def mute(self):
         """ Toggle mute """
@@ -176,5 +200,4 @@ def main():
 
 
 if __name__ == "__main__":
-    sys.argv.append('keys')
     main()
