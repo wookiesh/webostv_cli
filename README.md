@@ -1,3 +1,7 @@
+#Deprecated
+
+[![No Maintenance Intended](http://unmaintained.tech/badge.svg)](http://unmaintained.tech/)
+
 # WebOSTv-Cli
 
 Get easy cli access to your lg webos tv, ie:
