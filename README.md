@@ -1,4 +1,10 @@
-# WebOSTv-Cli
+[![No Maintenance Intended](http://unmaintained.tech/badge.svg)](http://unmaintained.tech/)
+
+# WebOSTv-Cli - Deprecated
+
+Please, development as taken a new direction and rather made more sense to start again from scratch..
+see [LGWS](https://github.com/eagleamon/lgws) if you're interested
+
 
 Get easy cli access to your lg webos tv, ie:
 
